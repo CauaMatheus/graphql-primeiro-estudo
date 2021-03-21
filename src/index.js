@@ -1,13 +1,56 @@
 const {ApolloServer, gql} = require('apollo-server');
 
 const typeDefs = gql`
-  type Query{
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+    active: Boolean!
+  }
+
+  type Post {
+    id: ID!
+    title: String
+    content: String
+    author: User!
+  }
+
+  type Query {
     hello: String
+    users: [User!]!
+    getUserByEmail(email: String!): User!
+  }
+
+  type Mutation {
+    createUser(name:String!, email:String!):User!
   }
 `;
+
+const users = [
+  {id: String(Math.random()),name: 'Cauã Matheus',email: 'cauamatheusdev@gmail.com',active: true},
+  {id: String(Math.random()),name: 'Cauã Matheus2',email: 'cauamatheus2dev@gmail.com',active: true},
+  {id: String(Math.random()),name: 'Cauã Matheus3',email: 'cauamatheus3dev@gmail.com',active: true},
+];
 const resolvers = {
-  Query:{
-    hello: () => 'Hello World'
+  Query: {
+    hello: () => 'Hello World',
+    users: () => users,
+    getUserByEmail: (_, args) => {
+      return users.find(user => user.email === args.email)
+    }
+  },
+
+  Mutation: {
+    createUser: (_, args) =>{
+      const newUser = {
+        id: String(Math.random()),
+        name: args.name,
+        email: args.email,
+        active: true
+      }
+      users.push(newUser)
+      return newUser
+    } 
   }
 };
 
